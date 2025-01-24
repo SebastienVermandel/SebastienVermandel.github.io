@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tableau de Langage Assisté</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .header, .footer {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: #f5f5f5;
+            border-radius: 8px;
+        }
+		
+		.header h1{
+			font-size: 2rem;
+			letter-spacing: 3px;
+			position:absolute;
+			margin-left: -20px;
+			margin-top:70px;
+			transform:rotate(310deg);
+			transform-origin:0 0;
+		}
+
+
+        .main-container {
+            display: flex;
+            gap: 20px;
+        }
+
+        .left-column {
+            flex: 3;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .right-column {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .toolbar {
+            background-color: #f8f8f8;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .left-column .toolbar form {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .toolbar select, .toolbar input, .toolbar button {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .toolbar button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .toolbar button:hover {
+            background-color: #45a049;
+        }
+
+        .svg-container {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 10px;
+            flex-grow: 1;
+        }
+
+        #results {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            padding: 15px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        .pictogram {
+            text-align: center;
+            padding: 10px;
+            border: 1px solid #eee;
+            border-radius: 4px;
+            transition: transform 0.2s;
+        }
+
+        .pictogram:hover {
+            transform: scale(1.05);
+        }
+
+        .pictogram img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        #notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 5px;
+            z-index: 1000;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            display: none;
+        }
+
+        .tool-section {
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 15px;
+        }
+
+        .tool-section:last-child {
+            border-bottom: none;
+        }
+
+        .tool-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .color-palette {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin: 10px 0;
+        }
+
+        .color-choice {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: transform 0.2s;
+        }
+
+        .color-choice:hover {
+            transform: scale(1.1);
+        }
+
+        .naming-section {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .naming-section input {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .action-button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px 0;
+            transition: background-color 0.3s;
+        }
+
+        .title-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #ddd;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: #4CAF50;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+		
+		 /* Style pour masquer l'input file */
+        .hidden-input {
+            display: none;
+        }
+
+        .pagination {
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        .pagination button {
+            margin: 0 5px;
+            padding: 5px 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: white;
+			color: black;
+            cursor: pointer;
+        }
+		
+		.toolbar span.caption{
+		position:absolute;
+		margin-top:-1.8em;
+		margin-left:-0.8em;
+		font-size:1.2em;
+		font-weight:500;
+		background-color: #f8f8f8;
+        border-radius: 8px;
+		padding:4px;
+		}
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>TLAb</h1>
+        <h2>Création simplifiée de tableaux de langage assisté</h2>
+        <p>Cet outil permet de créer des tableaux de communication personnalisés en utilisant les pictogrammes ARASAAC. 
+        Définissez la taille et la structure de votre tableau, puis recherchez et ajoutez les pictogrammes appropriés.</p>
+    </div>
+
+    <div class="main-container">
+        <div class="left-column">
+		
+            
+            <div class="toolbar">
+			<span class="caption">Configuration du tableau</span>
+                <form id="configForm">
+					<input type="text" id="titleInput" placeholder="Titre" value="Titre">
+					<label class="switch">
+						<input type="checkbox" id="titleToggle">
+						<span class="slider"></span>
+					</label>
+				
+                    <select id="size" name="size">
+                        <option value="a4">Format A4</option>
+                        <option value="a3">Format A3</option>
+                    </select>
+
+                    <select id="columns" name="columns">
+                        <option value="1">1 colonne</option>
+                        <option value="2">2 colonnes</option>
+                        <option value="3">3 colonnes</option>
+                        <option value="4">4 colonnes</option>
+                        <option value="5">5 colonnes</option>
+                        <option value="6" selected>6 colonnes</option>
+                        <option value="7">7 colonnes</option>
+                        <option value="8">8 colonnes</option>
+                    </select>
+
+                    <select id="rows" name="rows">
+                        <option value="1">1 ligne</option>
+                        <option value="2">2 lignes</option>
+                        <option value="3">3 lignes</option>
+                        <option value="4" selected>4 lignes</option>
+                        <option value="5">5 lignes</option>
+                        <option value="6">6 lignes</option>
+                        <option value="7">7 lignes</option>
+                        <option value="8">8 lignes</option>
+                    </select>
+
+                    <select id="spacing" name="spacing">
+                        <option value="1">Espacement proche</option>
+                        <option value="5" selected>Espacement moyen</option>
+                        <option value="15">Espacement éloigné</option>
+                    </select>
+					
+					<select id="fontSize" name="fontSize">
+						<option value="1">Petits caractères</option>
+						<option value="3.5" selected>Moyens caractères</option>
+						<option value="5">Grands caractères</option>
+					</select>
+
+                    <select id="colorPalette" name="colorPalette">
+                        <option value="palette1" selected>Palette 1</option>
+                        <option value="palette2">Palette 2</option>
+                        <option value="palette3">Palette 3</option>
+                    </select>
+
+                    <div>
+                        <button style="margin-left:2em;" type="button" id="downloadButton">Télécharger le SVG</button>
+						<input type="file" id="svgImport" accept=".svg" class="hidden-input">
+						<button type="button" class="import-button" id="importButton">Importer un SVG</button>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="svg-container">
+                <svg id="output" xmlns="http://www.w3.org/2000/svg"></svg>
+            </div>
+        </div>
+
+        <div class="right-column">
+            <div class="toolbar">
+                <span class="caption">Configuration de case</span>
+				<div class="tool-section">
+                    <div class="tool-title">Nommer la case</div>
+                    <div class="naming-section">
+                        <input type="text" id="cellText" placeholder="Texte de la case">
+                        <button class="action-button" id="nameButton">Nommer</button>
+                    </div>
+                </div>
+
+                <div class="tool-section">
+                    <div class="tool-title">Couleur de la case</div>
+                    <div id="colorPaletteDisplay" class="color-palette"></div>
+                </div>
+
+                <div class="tool-section">
+                    <button class="action-button" id="exchangeButton">Échanger deux cases</button>
+                </div>
+
+                <div class="tool-section">
+                    <div class="tool-title">Rechercher un pictogramme</div>
+                    <div class="search-section">
+                        <select id="languageSelect">
+                            <option value="fr">Français</option>
+                            <option value="en">English</option>
+                            <option value="es">Español</option>
+                            <option value="de">Deutsch</option>
+                            <option value="it">Italiano</option>
+                        </select>
+                        <input type="text" id="searchInput" placeholder="Rechercher un pictogramme...">
+                        <button class="action-button" id="searchButton">Rechercher</button>
+                    </div>
+                    <div id="results"></div>
+                    <div class="pagination" id="pagination"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="notification"></div>
+
+    <div class="footer">
+        <h2>Bon à savoir !</h2>
+        <p>Si l'on ajoute trois lettres à TLAb, on tombe sur le <a href="https://www.techlab-handicap.org">TechLab</a></p>
+    </div>
+
+    <script>
+      let currentMode = null;
+let selectedRect = null;
+let exchangeSource = null;
+let selectedImageId = null;
+let currentPage = 1;
+let searchResults = [];
+let selectedColor = null;
+let titleVisible = false;
+let titleText = "Titre";
+
+const colorPalettes = {
+    palette1: ["#ffc559", "#fdff8e", "#d6d6d6", "#aeff87", "#fe80be", "#7ae5fc", "#FFFFFF", "#000000"],
+    palette2: ["#ff9aa2", "#ffb7b2", "#ffdac1", "#e2f0cb", "#b5ead7", "#c7ceea", "#FFFFFF", "#000000"],
+    palette3: ["#ffadad", "#ffd6a5", "#fdffb6", "#caffbf", "#9bf6ff", "#a0c4ff", "#FFFFFF", "#000000"]
+};
+
+// Gestionnaires pour le tableau principal
+    function generateTable(preserveContent = false) {
+        const size = document.getElementById('size').value;
+        const columns = parseInt(document.getElementById('columns').value, 10);
+        const rows = parseInt(document.getElementById('rows').value, 10);
+        const spacing = parseFloat(document.getElementById('spacing').value);
+
+        const dimensions = {
+            a4: { width: 297, height: 210 },
+            a3: { width: 420, height: 297 }
+        };
+
+        const width = dimensions[size].width;
+        const height = dimensions[size].height;
+
+        let oldContent = [];
+        if (preserveContent) {
+            oldContent = Array.from(document.querySelectorAll('#output g')).map(g => ({
+                image: {
+                    href: g.querySelector('image').getAttribute('href'),
+                    dataId: g.querySelector('image').getAttribute('data-id'),
+                    display: g.querySelector('image').getAttribute('display')
+                },
+                text: g.querySelector('text').innerHTML,
+                background: g.querySelector('rect').getAttribute('fill')
+            }));
+        }
+
+        const svg = document.getElementById('output');
+        svg.setAttribute('width', `${width}mm`);
+        svg.setAttribute('height', `${height}mm`);
+        svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+        svg.innerHTML = '';
+
+        const rectWidth = (width - (columns + 1) * spacing) / columns;
+        const rectHeight = (height - (rows + 1) * spacing) / rows;
+        const defaultFontSize = calculateDefaultFontSize(rectWidth, rectHeight);
+
+        for (let row = 0; row < rows; row++) {
+            for (let col = 0; col < columns; col++) {
+                const x = spacing + col * (rectWidth + spacing);
+                const y = spacing + row * (rectHeight + spacing);
+
+                const rect = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                rect.setAttribute('transform', `translate(${x}, ${y})`);
+
+                const background = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                background.setAttribute('width', rectWidth);
+                background.setAttribute('height', rectHeight);
+                background.setAttribute('fill', '#ffffff');
+                background.setAttribute('stroke', '#000');
+                background.setAttribute('stroke-width', '0.2');
+                background.setAttribute('rx', '4');
+
+                const image = document.createElementNS('http://www.w3.org/2000/svg', 'image');
+                image.setAttribute('width', rectWidth);
+                image.setAttribute('height', rectHeight * 0.8);
+                image.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+
+                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                text.setAttribute('x', rectWidth / 2);
+                text.setAttribute('y', rectHeight * 0.9);
+                text.setAttribute('text-anchor', 'middle');
+                text.setAttribute('dominant-baseline', 'middle');
+                text.setAttribute('font-size', defaultFontSize);
+                text.setAttribute('fill', '#000');
+
+                rect.appendChild(background);
+                rect.appendChild(image);
+                rect.appendChild(text);
+
+                if (preserveContent) {
+                    const oldIndex = row * oldContent.length / rows + col;
+                    if (col < columns && oldContent[oldIndex]) {
+                        if (oldContent[oldIndex].image.href) {
+                            image.setAttribute('href', oldContent[oldIndex].image.href);
+                            image.setAttribute('data-id', oldContent[oldIndex].image.dataId);
+                            image.setAttribute('display', oldContent[oldIndex].image.display);
+                        }
+                        if (oldContent[oldIndex].text) {
+                            text.innerHTML = oldContent[oldIndex].text;
+                        }
+                        if (oldContent[oldIndex].background) {
+                            background.setAttribute('fill', oldContent[oldIndex].background);
+                        }
+                    }
+                }
+
+                rect.addEventListener('click', () => handleRectClick({ background, image, text }));
+                svg.appendChild(rect);
+            }
+        }
+
+        if (titleVisible) {
+            updateTitleInSVG();
+        }
+		
+		updateAllTextSizes();
+    }
+
+// Gestion du téléchargement
+document.getElementById('downloadButton').addEventListener('click', async function() {
+    try {
+        await updateSVGWithBase64Images();
+
+        const svg = document.getElementById('output');
+        svg.setAttributeNS('http://www.w3.org/2000/xmlns/', 'xmlns:xlink', 'http://www.w3.org/1999/xlink');
+        
+        const serializer = new XMLSerializer();
+        const source = serializer.serializeToString(svg);
+        const blob = new Blob([source], { type: 'image/svg+xml;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `tla-${titleText.toLowerCase().replace(/[^a-z0-9]/g, '-')}.svg`;
+        link.click();
+
+        URL.revokeObjectURL(url);
+    } catch (error) {
+        console.error('Erreur lors de l\'exportation du SVG:', error);
+    }
+});
+
+async function updateSVGWithBase64Images() {
+    const svgElement = document.querySelector('#output');
+    const images = svgElement.querySelectorAll('image');
+
+    for (const image of images) {
+        const href = image.getAttribute('href') || image.getAttributeNS('http://www.w3.org/1999/xlink', 'href');
+        
+        if (href && href.startsWith('http')) {
+            try {
+                const response = await fetch(href);
+                const blob = await response.blob();
+                const reader = new FileReader();
+
+                const base64Promise = new Promise((resolve, reject) => {
+                    reader.onloadend = () => resolve(reader.result);
+                    reader.onerror = reject;
+                    reader.readAsDataURL(blob);
+                });
+
+                const base64Data = await base64Promise;
+                image.removeAttribute('href');
+                image.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', base64Data);
+            } catch (error) {
+                console.error('Erreur lors de la conversion de l\'image:', error);
+            }
+        }
+    }
+}
+
+function calculateDefaultFontSize(rectWidth, rectHeight) {
+    const referenceText = "Ceci est un test";
+    const maxTextWidth = rectWidth * 0.98;
+    const baseSize = Math.floor((maxTextWidth / referenceText.length) * 0.8);
+    const scaleFactor = parseFloat(document.getElementById('fontSize').value);
+    const fontSize = baseSize * scaleFactor;
+    return Math.min(12, Math.max(4, fontSize));
+}
+
+function updateAllTextSizes() {
+    const svg = document.getElementById('output');
+    const texts = svg.querySelectorAll('text');
+    const rectWidth = parseFloat(svg.querySelector('rect').getAttribute('width'));
+    const rectHeight = parseFloat(svg.querySelector('rect').getAttribute('height'));
+    const newFontSize = calculateDefaultFontSize(rectWidth, rectHeight);
+    
+    texts.forEach(text => {
+        if (text.id !== 'svgTitle') {
+            text.setAttribute('font-size', newFontSize);
+            // Récupérer le texte complet en préservant les espaces
+            const tspans = text.querySelectorAll('tspan');
+            let originalText = '';
+            if (tspans.length > 0) {
+                originalText = Array.from(tspans)
+                    .map(tspan => tspan.textContent)
+                    .join(' ');
+            } else {
+                originalText = text.textContent;
+            }
+            updateCellText(text, originalText.trim(), rectWidth);
+        }
+    });
+}
+
+// Gestion de l'import
+document.getElementById('importButton').addEventListener('click', function() {
+    document.getElementById('svgImport').click();
+});
+
+document.getElementById('svgImport').addEventListener('change', handleFileSelect);
+
+// Modification de la fonction handleFileSelect
+function handleFileSelect(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const parser = new DOMParser();
+            const importedSvg = parser.parseFromString(e.target.result, 'image/svg+xml');
+            
+            if (importedSvg.documentElement.tagName === 'svg') {
+                const outputSvg = document.getElementById('output');
+                
+                // Import du SVG comme avant
+                ['width', 'height', 'viewBox'].forEach(attr => {
+                    if (importedSvg.documentElement.hasAttribute(attr)) {
+                        outputSvg.setAttribute(attr, importedSvg.documentElement.getAttribute(attr));
+                    }
+                });
+                
+                outputSvg.innerHTML = importedSvg.documentElement.innerHTML;
+                
+                // Détection des paramètres
+                const params = detectTableParameters(importedSvg.documentElement);
+                updateSelectMenus(params);
+                
+                // Réattachement des événements
+                outputSvg.querySelectorAll('image').forEach(image => {
+                    const xlinkHref = image.getAttributeNS('http://www.w3.org/1999/xlink', 'href');
+                    if (xlinkHref) {
+                        image.removeAttributeNS('http://www.w3.org/1999/xlink', 'href');
+                        image.setAttribute('href', xlinkHref);
+                    }
+                });
+                reattachEventListeners();
+            }
+        } catch (error) {
+            console.error('Erreur lors de l\'import du SVG:', error);
+            alert('Une erreur est survenue lors de l\'import du fichier.');
+        }
+    };
+    reader.readAsText(file);
+}
+
+function detectTableParameters(svg) {
+    // Récupération des dimensions du SVG
+    const width = parseFloat(svg.getAttribute('width'));
+    const height = parseFloat(svg.getAttribute('height'));
+    
+    // Détermination du format papier
+    const size = (width >= 400) ? 'a3' : 'a4';
+    
+    // Comptage des colonnes et lignes
+    const groups = svg.querySelectorAll('g');
+    const rects = Array.from(groups).map(g => {
+        const rect = g.querySelector('rect');
+        const transform = g.getAttribute('transform');
+        const x = parseFloat(transform.match(/translate\(([\d.]+)/)[1]);
+        const y = parseFloat(transform.match(/translate\([\d.]+,\s*([\d.]+)/)[1]);
+        return { rect, x, y };
+    });
+    
+    // Tri par position
+    const uniqueX = [...new Set(rects.map(r => r.x))].sort((a, b) => a - b);
+    const uniqueY = [...new Set(rects.map(r => r.y))].sort((a, b) => a - b);
+    
+    const columns = uniqueX.length;
+    const rows = uniqueY.length;
+    
+    // Calcul de l'espacement
+    const spacing = uniqueX[0];
+    const spacingValue = spacing <= 2 ? '1' : spacing <= 10 ? '5' : '15';
+    
+    // Détection de la taille de police
+    const texts = svg.querySelectorAll('text:not(#svgTitle)');
+    const fontSize = texts.length > 0 ? parseFloat(texts[0].getAttribute('font-size')) : 3.5;
+    const fontSizeValue = fontSize <= 2 ? '1' : fontSize >= 4.5 ? '5' : '3.5';
+    
+    return {
+        size,
+        columns: String(columns),
+        rows: String(rows),
+        spacing: spacingValue,
+        fontSize: fontSizeValue
+    };
+}
+
+function updateSelectMenus(params) {
+    Object.entries(params).forEach(([key, value]) => {
+        const select = document.getElementById(key);
+        if (select) {
+            select.value = value;
+        }
+    });
+}
+
+function reattachEventListeners() {
+    const svg = document.getElementById('output');
+    const groups = svg.querySelectorAll('g');
+    
+    groups.forEach(group => {
+        const background = group.querySelector('rect');
+        const image = group.querySelector('image');
+        const text = group.querySelector('text');
+        
+        if (background && image && text) {
+            group.addEventListener('click', function() {
+                handleRectClick({ background, image, text });
+            });
+        }
+    });
+}
+
+
+function showNotification(message) {
+    const notification = document.getElementById('notification');
+    notification.textContent = message;
+    notification.style.display = 'block';
+}
+
+function hideNotification() {
+    document.getElementById('notification').style.display = 'none';
+}
+
+function cancelCurrentMode() {
+    currentMode = null;
+    selectedRect = null;
+    exchangeSource = null;
+    hideNotification();
+}
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        cancelCurrentMode();
+    }
+});
+
+function initializeColorPalette() {
+    const palette = document.getElementById('colorPaletteDisplay');
+    const colors = colorPalettes[document.getElementById('colorPalette').value];
+    
+    palette.innerHTML = '';
+    colors.forEach(color => {
+        const colorDiv = document.createElement('div');
+        colorDiv.className = 'color-choice';
+        colorDiv.style.backgroundColor = color;
+        colorDiv.addEventListener('click', () => {
+            currentMode = 'color';
+            selectedColor = color;
+            showNotification('Cliquez sur une case pour appliquer la couleur');
+        });
+        palette.appendChild(colorDiv);
+    });
+}
+
+function updateCellText(textElement, newText, rectWidth) {
+    const fontSize = parseFloat(textElement.getAttribute('font-size'));
+    const lineSpacing = 1.2;
+    const maxWidth = rectWidth * 0.9;
+    
+    const tempText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    tempText.setAttribute('font-size', fontSize);
+    document.getElementById('output').appendChild(tempText);
+    
+    const words = newText.split(' ');
+    let currentLine = '';
+    let lines = [];
+    
+    for (let word of words) {
+        const testLine = currentLine ? (currentLine + ' ' + word) : word;
+        tempText.textContent = testLine;
+        const testWidth = tempText.getComputedTextLength();
+        
+        if (testWidth > maxWidth && currentLine !== '') {
+            lines.push(currentLine);
+            currentLine = word;
+        } else {
+            currentLine = testLine;
+        }
+    }
+    lines.push(currentLine);
+    tempText.remove();
+    
+    while (textElement.firstChild) {
+        textElement.removeChild(textElement.firstChild);
+    }
+    
+    const totalHeight = lines.length * fontSize * lineSpacing;
+    const baselineOffset = totalHeight * 0.5;
+    
+    lines.forEach((line, index) => {
+        const tspan = document.createElementNS('http://www.w3.org/2000/svg', 'tspan');
+        tspan.textContent = line;
+        tspan.setAttribute('x', textElement.getAttribute('x'));
+        tspan.setAttribute('dy', index === 0 ? -baselineOffset : fontSize * lineSpacing);
+        textElement.appendChild(tspan);
+    });
+}
+
+function handleRectClick(rect) {
+    switch(currentMode) {
+        case 'name':
+            const newText = document.getElementById('cellText').value;
+            updateCellText(rect.text, newText, parseFloat(rect.background.getAttribute('width')));
+            cancelCurrentMode();
+            break;
+            
+        case 'color':
+            rect.background.setAttribute('fill', selectedColor);
+            cancelCurrentMode();
+            break;
+            
+        case 'exchange':
+            if (!exchangeSource) {
+                exchangeSource = rect;
+                showNotification('Cliquez sur la deuxième case à échanger');
+            } else {
+                exchangeRects(exchangeSource, rect);
+                cancelCurrentMode();
+            }
+            break;
+            
+        case 'pictogram':
+            if (selectedImageId) {
+                const imageUrl = `https://api.arasaac.org/v1/pictograms/${selectedImageId}?download=false`;
+                rect.image.setAttribute('href', imageUrl);
+                rect.image.setAttribute('data-id', selectedImageId);
+                rect.image.setAttribute('display', 'inline');
+                cancelCurrentMode();
+            }
+            break;
+    }
+}
+
+function exchangeRects(rect1, rect2) {
+    const tempHref = rect1.image.getAttribute('href');
+    const tempId = rect1.image.getAttribute('data-id');
+    const tempDisplay = rect1.image.getAttribute('display');
+    
+    rect1.image.setAttribute('href', rect2.image.getAttribute('href') || '');
+    rect1.image.setAttribute('data-id', rect2.image.getAttribute('data-id') || '');
+    rect1.image.setAttribute('display', rect2.image.getAttribute('display') || '');
+    
+    rect2.image.setAttribute('href', tempHref || '');
+    rect2.image.setAttribute('data-id', tempId || '');
+    rect2.image.setAttribute('display', tempDisplay || '');
+
+    const tempTextContent = rect1.text.innerHTML;
+    rect1.text.innerHTML = rect2.text.innerHTML;
+    rect2.text.innerHTML = tempTextContent;
+
+    const tempFill = rect1.background.getAttribute('fill');
+    rect1.background.setAttribute('fill', rect2.background.getAttribute('fill'));
+    rect2.background.setAttribute('fill', tempFill);
+}
+
+// Gestionnaires d'événements initiaux
+document.addEventListener('DOMContentLoaded', () => {
+     generateTable();
+     initializeColorPalette();
+        
+    ['size', 'columns', 'rows', 'spacing'].forEach(id => {
+        document.getElementById(id).addEventListener('change', () => generateTable(true));
+    });
+	
+    document.getElementById('colorPalette').addEventListener('change', initializeColorPalette);
+    
+    document.getElementById('nameButton').addEventListener('click', () => {
+        currentMode = 'name';
+        showNotification('Cliquez sur une case pour modifier son texte');
+    });
+
+    document.getElementById('exchangeButton').addEventListener('click', () => {
+        currentMode = 'exchange';
+        exchangeSource = null;
+        showNotification('Cliquez sur la première case à échanger');
+    });
+
+    document.getElementById('titleInput').addEventListener('input', (e) => {
+        titleText = e.target.value;
+        if (titleVisible) {
+            updateTitleInSVG();
+        }
+    });
+
+    document.getElementById('titleToggle').addEventListener('change', (e) => {
+        titleVisible = e.target.checked;
+        updateTitleInSVG();
+    });
+    
+    // Ajout des gestionnaires pour la recherche de pictogrammes
+    document.getElementById('searchButton').addEventListener('click', performSearch);
+    document.getElementById('searchInput').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            performSearch();
+        }
+    });
+	
+	document.getElementById('fontSize').addEventListener('change', updateAllTextSizes);
+});
+
+async function performSearch() {
+    const query = document.getElementById('searchInput').value.trim();
+    const language = document.getElementById('languageSelect').value;
+    
+    if (!query) return;
+
+    try {
+        const response = await fetch(`https://api.arasaac.org/api/pictograms/${language}/search/${encodeURIComponent(query)}`);
+        if (!response.ok) throw new Error(`Erreur HTTP: ${response.status}`);
+        
+        searchResults = await response.json();
+        currentPage = 1;
+        displayResults();
+    } catch (error) {
+        console.error('Erreur lors de la recherche:', error);
+        document.getElementById('results').innerHTML = 
+            '<div style="color: red; padding: 20px; text-align: center;">Une erreur est survenue lors de la recherche</div>';
+    }
+}
+
+function displayResults() {
+    const resultsPerPage = 6;
+    const resultsContainer = document.getElementById('results');
+    const paginationContainer = document.getElementById('pagination');
+    
+    resultsContainer.innerHTML = '';
+    paginationContainer.innerHTML = '';
+
+    if (searchResults.length === 0) {
+        resultsContainer.innerHTML = '<div style="text-align: center; padding: 20px;">Aucun résultat trouvé</div>';
+        return;
+    }
+
+    const start = (currentPage - 1) * resultsPerPage;
+    const end = Math.min(start + resultsPerPage, searchResults.length);
+    const pageResults = searchResults.slice(start, end);
+
+    pageResults.forEach(result => {
+        const div = document.createElement('div');
+        div.className = 'pictogram';
+
+        const img = document.createElement('img');
+        img.src = `https://api.arasaac.org/v1/pictograms/${result._id}?download=false`;
+        img.alt = result.keywords.map(k => k.keyword).join(', ');
+        img.title = img.alt;
+        img.dataset.id = result._id;
+
+        img.addEventListener('click', () => {
+            currentMode = 'pictogram';
+            selectedImageId = result._id;
+            showNotification('Cliquez sur une case pour ajouter le pictogramme');
+            
+            const allPictograms = document.querySelectorAll('.pictogram');
+            allPictograms.forEach(p => p.style.border = '1px solid #eee');
+            div.style.border = '2px solid #4CAF50';
+        });
+
+        div.appendChild(img);
+        resultsContainer.appendChild(div);
+    });
+
+    updatePagination(Math.ceil(searchResults.length / resultsPerPage));
+}
+
+function updatePagination(totalPages) {
+    const paginationContainer = document.getElementById('pagination');
+    
+    if (currentPage > 1) {
+        addPaginationButton('←', () => {
+            currentPage--;
+            displayResults();
+        });
+    }
+
+    for (let i = 1; i <= totalPages; i++) {
+        if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+            addPaginationButton(i, () => {
+                currentPage = i;
+                displayResults();
+            }, i === currentPage);
+        } else if (i === currentPage - 2 || i === currentPage + 2) {
+            const span = document.createElement('span');
+            span.textContent = '...';
+            span.style.margin = '0 8px';
+            paginationContainer.appendChild(span);
+        }
+    }
+
+    if (currentPage < totalPages) {
+        addPaginationButton('→', () => {
+            currentPage++;
+            displayResults();
+        });
+    }
+}
+
+function addPaginationButton(text, onClick, isDisabled = false) {
+    const button = document.createElement('button');
+    button.textContent = text;
+    button.disabled = isDisabled;
+    button.addEventListener('click', onClick);
+    document.getElementById('pagination').appendChild(button);
+}
+
+function updateTitleInSVG() {
+    const svg = document.getElementById('output');
+    let titleElement = svg.querySelector('#svgTitle');
+
+    if (titleVisible) {
+        if (!titleElement) {
+            titleElement = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            titleElement.setAttribute('id', 'svgTitle');
+            titleElement.setAttribute('font-size', '4');
+            titleElement.setAttribute('fill', '#000');
+            svg.appendChild(titleElement);
+        }
+        
+        const svgWidth = parseFloat(svg.getAttribute('width'));
+        const svgHeight = parseFloat(svg.getAttribute('height'));
+        
+        titleElement.setAttribute('x', svgWidth - 0.1);
+        titleElement.setAttribute('y', svgHeight - 0.1);
+        titleElement.setAttribute('text-anchor', 'end');
+        titleElement.textContent = titleText;
+    } else if (titleElement) {
+        titleElement.remove();
+    }
+}
+    </script>
+</body>
+</html>
