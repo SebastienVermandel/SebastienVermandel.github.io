@@ -271,6 +271,48 @@
         border-radius: 8px;
 		padding:4px;
 		}
+		
+		 /* Ajout des styles pour le mode impression */
+        .print-mode .header,
+        .print-mode .footer,
+        .print-mode .toolbar,
+        .print-mode .right-column,
+		.print-mode #notification	{
+            display: none !important;
+        }
+
+        .print-mode .main-container {
+            padding: 0;
+            margin: 0;
+        }
+
+        .print-mode .left-column {
+            width: 100%;
+            padding: 0;
+            margin: 0;
+        }
+
+        .print-mode .svg-container {
+            border: none;
+            padding: 0;
+            margin: 0;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: white;
+        }
+
+        @media print {
+            body:not(.print-mode) {
+                display: none;
+            }
+            
+            .print-mode {
+                display: block;
+            }
+        }
     </style>
 </head>
 <body>
@@ -279,6 +321,7 @@
         <h2>Création simplifiée de tableaux de langage assisté</h2>
         <p>Cet outil permet de créer des tableaux de communication personnalisés en utilisant les pictogrammes ARASAAC. 
         Définissez la taille et la structure de votre tableau, puis recherchez et ajoutez les pictogrammes appropriés.</p>
+		<p>v 11</p>
     </div>
 
     <div class="main-container">
@@ -343,6 +386,7 @@
                         <button style="margin-left:2em;" type="button" id="downloadButton">Télécharger le SVG</button>
 						<input type="file" id="svgImport" accept=".svg" class="hidden-input">
 						<button type="button" class="import-button" id="importButton">Importer un SVG</button>
+						<button type="button" class="print-button" id="printButton">Imprimer</button>
                     </div>
                 </form>
             </div>
@@ -417,104 +461,154 @@ const colorPalettes = {
 };
 
 // Gestionnaires pour le tableau principal
-    function generateTable(preserveContent = false) {
-        const size = document.getElementById('size').value;
-        const columns = parseInt(document.getElementById('columns').value, 10);
-        const rows = parseInt(document.getElementById('rows').value, 10);
-        const spacing = parseFloat(document.getElementById('spacing').value);
 
-        const dimensions = {
-            a4: { width: 297, height: 210 },
-            a3: { width: 420, height: 297 }
-        };
+function generateTable(preserveContent = false) {
+    const size = document.getElementById('size').value;
+    const newColumns = parseInt(document.getElementById('columns').value, 10);
+    const newRows = parseInt(document.getElementById('rows').value, 10);
+    const spacing = parseFloat(document.getElementById('spacing').value);
 
-        const width = dimensions[size].width;
-        const height = dimensions[size].height;
+    const dimensions = {
+        a4: { width: 297, height: 210 },
+        a3: { width: 420, height: 297 }
+    };
 
-        let oldContent = [];
-        if (preserveContent) {
-            oldContent = Array.from(document.querySelectorAll('#output g')).map(g => ({
-                image: {
-                    href: g.querySelector('image').getAttribute('href'),
-                    dataId: g.querySelector('image').getAttribute('data-id'),
-                    display: g.querySelector('image').getAttribute('display')
-                },
-                text: g.querySelector('text').innerHTML,
-                background: g.querySelector('rect').getAttribute('fill')
-            }));
-        }
+    const width = dimensions[size].width;
+    const height = dimensions[size].height;
 
-        const svg = document.getElementById('output');
-        svg.setAttribute('width', `${width}mm`);
-        svg.setAttribute('height', `${height}mm`);
-        svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
-        svg.innerHTML = '';
+    // Créer une grille pour stocker le contenu existant
+    let existingGrid = [];
+    
+    if (preserveContent) {
+        // Trouver les dimensions actuelles de la grille
+        const cells = Array.from(document.querySelectorAll('#output g'));
+        if (cells.length > 0) {
+            // Déterminer le nombre actuel de colonnes et de lignes
+            const xPositions = new Set();
+            const yPositions = new Set();
+            
+            cells.forEach(cell => {
+                const transform = cell.getAttribute('transform');
+                if (transform) {
+                    const [x, y] = transform.match(/translate\(([\d.]+),\s*([\d.]+)\)/)
+                        .slice(1)
+                        .map(parseFloat);
+                    xPositions.add(x);
+                    yPositions.add(y);
+                }
+            });
 
-        const rectWidth = (width - (columns + 1) * spacing) / columns;
-        const rectHeight = (height - (rows + 1) * spacing) / rows;
-        const defaultFontSize = calculateDefaultFontSize(rectWidth, rectHeight);
+            const currentColumns = xPositions.size;
+            const currentRows = yPositions.size;
 
-        for (let row = 0; row < rows; row++) {
-            for (let col = 0; col < columns; col++) {
-                const x = spacing + col * (rectWidth + spacing);
-                const y = spacing + row * (rectHeight + spacing);
+            // Créer et remplir la grille existante
+            existingGrid = Array(currentRows).fill().map(() => Array(currentColumns).fill(null));
 
-                const rect = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-                rect.setAttribute('transform', `translate(${x}, ${y})`);
+            // Trier les positions pour obtenir l'ordre correct
+            const sortedX = Array.from(xPositions).sort((a, b) => a - b);
+            const sortedY = Array.from(yPositions).sort((a, b) => a - b);
 
-                const background = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-                background.setAttribute('width', rectWidth);
-                background.setAttribute('height', rectHeight);
-                background.setAttribute('fill', '#ffffff');
-                background.setAttribute('stroke', '#000');
-                background.setAttribute('stroke-width', '0.2');
-                background.setAttribute('rx', '4');
+            cells.forEach(cell => {
+                const transform = cell.getAttribute('transform');
+                if (transform) {
+                    const [x, y] = transform.match(/translate\(([\d.]+),\s*([\d.]+)\)/)
+                        .slice(1)
+                        .map(parseFloat);
+                    
+                    const col = sortedX.indexOf(x);
+                    const row = sortedY.indexOf(y);
 
-                const image = document.createElementNS('http://www.w3.org/2000/svg', 'image');
-                image.setAttribute('width', rectWidth);
-                image.setAttribute('height', rectHeight * 0.8);
-                image.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-
-                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-                text.setAttribute('x', rectWidth / 2);
-                text.setAttribute('y', rectHeight * 0.9);
-                text.setAttribute('text-anchor', 'middle');
-                text.setAttribute('dominant-baseline', 'middle');
-                text.setAttribute('font-size', defaultFontSize);
-                text.setAttribute('fill', '#000');
-
-                rect.appendChild(background);
-                rect.appendChild(image);
-                rect.appendChild(text);
-
-                if (preserveContent) {
-                    const oldIndex = row * oldContent.length / rows + col;
-                    if (col < columns && oldContent[oldIndex]) {
-                        if (oldContent[oldIndex].image.href) {
-                            image.setAttribute('href', oldContent[oldIndex].image.href);
-                            image.setAttribute('data-id', oldContent[oldIndex].image.dataId);
-                            image.setAttribute('display', oldContent[oldIndex].image.display);
-                        }
-                        if (oldContent[oldIndex].text) {
-                            text.innerHTML = oldContent[oldIndex].text;
-                        }
-                        if (oldContent[oldIndex].background) {
-                            background.setAttribute('fill', oldContent[oldIndex].background);
-                        }
+                    if (row >= 0 && col >= 0) {
+                        existingGrid[row][col] = {
+                            image: {
+                                href: cell.querySelector('image')?.getAttribute('href') || '',
+                                dataId: cell.querySelector('image')?.getAttribute('data-id') || '',
+                                display: cell.querySelector('image')?.getAttribute('display') || ''
+                            },
+                            text: cell.querySelector('text')?.innerHTML || '',
+                            background: cell.querySelector('rect')?.getAttribute('fill') || '#ffffff'
+                        };
                     }
                 }
-
-                rect.addEventListener('click', () => handleRectClick({ background, image, text }));
-                svg.appendChild(rect);
-            }
+            });
         }
-
-        if (titleVisible) {
-            updateTitleInSVG();
-        }
-		
-		updateAllTextSizes();
     }
+
+    const svg = document.getElementById('output');
+    svg.setAttribute('width', `${width}mm`);
+    svg.setAttribute('height', `${height}mm`);
+    svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+    svg.innerHTML = '';
+
+    const rectWidth = (width - (newColumns + 1) * spacing) / newColumns;
+    const rectHeight = (height - (newRows + 1) * spacing) / newRows;
+    const defaultFontSize = calculateDefaultFontSize(rectWidth, rectHeight);
+
+    // Créer la nouvelle grille
+    for (let row = 0; row < newRows; row++) {
+        for (let col = 0; col < newColumns; col++) {
+            const x = spacing + col * (rectWidth + spacing);
+            const y = spacing + row * (rectHeight + spacing);
+
+            const group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+            group.setAttribute('transform', `translate(${x}, ${y})`);
+            group.setAttribute('data-row', row);
+            group.setAttribute('data-col', col);
+
+            const background = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            background.setAttribute('width', rectWidth);
+            background.setAttribute('height', rectHeight);
+            background.setAttribute('fill', '#ffffff');
+            background.setAttribute('stroke', '#000');
+            background.setAttribute('stroke-width', '0.2');
+            background.setAttribute('rx', '4');
+
+            const image = document.createElementNS('http://www.w3.org/2000/svg', 'image');
+            image.setAttribute('width', rectWidth);
+            image.setAttribute('height', rectHeight * 0.8);
+            image.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+
+            const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            text.setAttribute('x', rectWidth / 2);
+            text.setAttribute('y', rectHeight * 0.9);
+            text.setAttribute('text-anchor', 'middle');
+            text.setAttribute('dominant-baseline', 'middle');
+            text.setAttribute('font-size', defaultFontSize);
+            text.setAttribute('fill', '#000');
+
+            group.appendChild(background);
+            group.appendChild(image);
+            group.appendChild(text);
+
+            // Restaurer le contenu existant si disponible
+            if (preserveContent && existingGrid.length > 0 && row < existingGrid.length && col < existingGrid[0].length) {
+                const content = existingGrid[row][col];
+                if (content) {
+                    if (content.image.href) {
+                        image.setAttribute('href', content.image.href);
+                        image.setAttribute('data-id', content.image.dataId);
+                        image.setAttribute('display', content.image.display);
+                    }
+                    if (content.text) {
+                        text.innerHTML = content.text;
+                    }
+                    if (content.background) {
+                        background.setAttribute('fill', content.background);
+                    }
+                }
+            }
+
+            group.addEventListener('click', () => handleRectClick({ background, image, text }));
+            svg.appendChild(group);
+        }
+    }
+
+    if (titleVisible) {
+        updateTitleInSVG();
+    }
+    
+    updateAllTextSizes();
+}
 
 // Gestion du téléchargement
 document.getElementById('downloadButton').addEventListener('click', async function() {
@@ -663,31 +757,62 @@ function detectTableParameters(svg) {
     // Détermination du format papier
     const size = (width >= 400) ? 'a3' : 'a4';
     
-    // Comptage des colonnes et lignes
+    // Récupérer tous les groupes et leurs positions
     const groups = svg.querySelectorAll('g');
-    const rects = Array.from(groups).map(g => {
-        const rect = g.querySelector('rect');
+    const positions = [];
+    
+    groups.forEach(g => {
         const transform = g.getAttribute('transform');
-        const x = parseFloat(transform.match(/translate\(([\d.]+)/)[1]);
-        const y = parseFloat(transform.match(/translate\([\d.]+,\s*([\d.]+)/)[1]);
-        return { rect, x, y };
+        if (transform) {
+            const matches = transform.match(/translate\(([\d.-]+)[,\s]+([\d.-]+)\)/);
+            if (matches) {
+                const x = parseFloat(matches[1]);
+                const y = parseFloat(matches[2]);
+                positions.push({ x, y });
+            }
+        }
     });
     
-    // Tri par position
-    const uniqueX = [...new Set(rects.map(r => r.x))].sort((a, b) => a - b);
-    const uniqueY = [...new Set(rects.map(r => r.y))].sort((a, b) => a - b);
-    
-    const columns = uniqueX.length;
-    const rows = uniqueY.length;
-    
-    // Calcul de l'espacement
-    const spacing = uniqueX[0];
+    if (positions.length === 0) {
+        return getDefaultParameters();
+    }
+
+    // Trier les positions par x et y
+    positions.sort((a, b) => {
+        if (a.y === b.y) return a.x - b.x;
+        return a.y - b.y;
+    });
+
+    // Compter les colonnes en trouvant le nombre de positions différentes en x
+    const xPositions = new Set();
+    positions.forEach(p => xPositions.add(Math.round(p.x * 100) / 100));
+    const columns = xPositions.size;
+
+    // Compter les lignes en trouvant le nombre de positions différentes en y
+    const yPositions = new Set();
+    positions.forEach(p => yPositions.add(Math.round(p.y * 100) / 100));
+    const rows = yPositions.size;
+
+    // Calculer l'espacement
+    const xArray = Array.from(xPositions).sort((a, b) => a - b);
+    let spacing = 5; // Valeur par défaut
+    if (xArray.length >= 2) {
+        spacing = xArray[1] - xArray[0];
+    }
+
+    // Conversion de l'espacement
     const spacingValue = spacing <= 2 ? '1' : spacing <= 10 ? '5' : '15';
     
     // Détection de la taille de police
     const texts = svg.querySelectorAll('text:not(#svgTitle)');
-    const fontSize = texts.length > 0 ? parseFloat(texts[0].getAttribute('font-size')) : 3.5;
+    const fontSize = texts.length > 0 ? parseFloat(texts[0].getAttribute('font-size')) || 3.5 : 3.5;
     const fontSizeValue = fontSize <= 2 ? '1' : fontSize >= 4.5 ? '5' : '3.5';
+
+    // Log pour le débogage
+    console.log('Positions détectées:', positions);
+    console.log('Positions X uniques:', Array.from(xPositions));
+    console.log('Positions Y uniques:', Array.from(yPositions));
+    console.log(`Grille détectée: ${columns} colonnes x ${rows} lignes`);
     
     return {
         size,
@@ -695,6 +820,16 @@ function detectTableParameters(svg) {
         rows: String(rows),
         spacing: spacingValue,
         fontSize: fontSizeValue
+    };
+}
+
+function getDefaultParameters() {
+    return {
+        size: 'a4',
+        columns: '6',
+        rows: '4',
+        spacing: '5',
+        fontSize: '3.5'
     };
 }
 
@@ -1041,6 +1176,29 @@ function updateTitleInSVG() {
         titleElement.remove();
     }
 }
+
+// Ajout de la gestion de l'impression
+        document.addEventListener('DOMContentLoaded', () => {
+            // ... gestionnaires d'événements existants ...
+
+            const printButton = document.getElementById('printButton');
+            
+            printButton.addEventListener('click', () => {
+                document.body.classList.add('print-mode');
+                showNotification('Appuyez sur Echap pour quitter le mode impression');
+            });
+
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    if (document.body.classList.contains('print-mode')) {
+                        document.body.classList.remove('print-mode');
+                        hideNotification();
+                    }
+                    cancelCurrentMode();
+                }
+            });
+        });
+		
     </script>
 </body>
 </html>
