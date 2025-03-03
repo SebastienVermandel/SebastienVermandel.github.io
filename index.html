@@ -414,6 +414,10 @@
                 <div class="tool-section">
                     <button class="action-button" id="exchangeButton">Échanger deux cases</button>
                 </div>
+				
+				<div class="tool-section">
+					<button class="action-button" id="clearCellButton">Effacer la case</button>
+				</div>
 
                 <div class="tool-section">
                     <div class="tool-title">Rechercher un pictogramme</div>
@@ -440,7 +444,7 @@
     <div class="footer">
         <h2>Bon à savoir !</h2>
         <p>Si l'on ajoute trois lettres à TLAb, on tombe sur le <a href="https://www.techlab-handicap.org">TechLab</a></p>
-		<p>v 11 - 20250204</p>
+		<p>v 12 - 20250303</p>
     </div>
 
     <script>
@@ -977,6 +981,10 @@ function handleRectClick(rect) {
                 cancelCurrentMode();
             }
             break;
+		case 'clear':
+            clearCell(rect);
+            cancelCurrentMode();
+            break;
     }
 }
 
@@ -1046,6 +1054,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 	
 	document.getElementById('fontSize').addEventListener('change', updateAllTextSizes);
+	
+	document.getElementById('clearCellButton').addEventListener('click', () => {
+      currentMode = 'clear';
+      showNotification('Cliquez sur une case pour effacer son contenu');
+	});
 });
 
 async function performSearch() {
@@ -1175,6 +1188,21 @@ function updateTitleInSVG() {
     } else if (titleElement) {
         titleElement.remove();
     }
+}
+
+function clearCell(rect) {
+    // Réinitialiser l'image
+    rect.image.removeAttribute('href');
+    rect.image.removeAttribute('data-id');
+    rect.image.setAttribute('display', 'none');
+    
+    // Réinitialiser le texte
+    while (rect.text.firstChild) {
+        rect.text.removeChild(rect.text.firstChild);
+    }
+    
+    // Réinitialiser la couleur de fond à blanc
+    rect.background.setAttribute('fill', '#ffffff');
 }
 
 // Ajout de la gestion de l'impression
