@@ -1,0 +1,1757 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grille d'auto-évaluation CAA - Communication Améliorée et Alternative</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            margin: 0 0 10px 0;
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+        
+        .header p {
+            margin: 0;
+            opacity: 0.9;
+            font-size: 1rem;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .introduction {
+            background: #e8f4f8;
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .introduction h2 {
+            margin: 0 0 15px 0;
+            color: #2c3e50;
+            font-size: 1.3rem;
+        }
+        
+        .introduction p {
+            margin: 0 0 15px 0;
+            text-align: justify;
+        }
+        
+        .introduction p:last-child {
+            margin-bottom: 0;
+        }
+        
+        .quote {
+            font-style: italic;
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+            border-left: 3px solid #3498db;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #28a745, #20c997);
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 4px;
+        }
+        
+        .dimension {
+            margin-bottom: 40px;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .dimension-header {
+            background: #f8f9fa;
+            padding: 20px;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .dimension-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin: 0 0 5px 0;
+        }
+        
+        .dimension-content {
+            padding: 20px;
+        }
+        
+        .question {
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #f1f3f4;
+        }
+        
+        .question:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+        
+        .question-number {
+            font-weight: 600;
+            color: #3498db;
+            margin-bottom: 8px;
+        }
+        
+        .question-text {
+            font-weight: 500;
+            margin-bottom: 15px;
+            color: #495057;
+        }
+        
+        .radio-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .radio-option {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            border: 2px solid #dee2e6;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-width: 200px;
+            background: white;
+        }
+        
+        .radio-option:hover {
+            border-color: #3498db;
+            background: #f8f9fa;
+        }
+        
+        .radio-option.selected.level-1 {
+            border-color: #dc3545;
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .radio-option.selected.level-2 {
+            border-color: #fd7e14;
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .radio-option.selected.level-3 {
+            border-color: #ffc107;
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .radio-option.selected.level-4 {
+            border-color: #28a745;
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .radio-option input[type="radio"] {
+            margin-right: 8px;
+            transform: scale(1.2);
+        }
+        
+        .radio-option label {
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        .scale-legend {
+            background: #e8f4f8;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        
+        .scale-legend h3 {
+            margin: 0 0 15px 0;
+            color: #2c3e50;
+            font-size: 1.1rem;
+        }
+        
+        .scale-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            padding: 8px 0;
+        }
+        
+        .scale-number {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #3498db;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+        
+        .scale-description {
+            font-size: 0.9rem;
+            color: #495057;
+        }
+        
+        .results-section {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px solid #dee2e6;
+            display: none;
+        }
+        
+        .results-section.visible {
+            display: block;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 500px;
+            margin: 30px 0;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .results-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .summary-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .summary-card h3 {
+            margin: 0 0 10px 0;
+            font-size: 1rem;
+            color: #2c3e50;
+        }
+        
+        .summary-card .score {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #3498db;
+        }
+        
+        .summary-card .score-detail {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+        
+        .export-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+            font-size: 0.95rem;
+        }
+        
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #2980b9;
+            transform: translateY(-1px);
+        }
+        
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #218838;
+            transform: translateY(-1px);
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+        
+        .metadata-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #495057;
+        }
+        
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 0.95rem;
+        }
+        
+        .form-group textarea {
+            height: 80px;
+            resize: vertical;
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .radio-group {
+                flex-direction: column;
+            }
+            
+            .radio-option {
+                min-width: unset;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+            
+            .results-summary {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Styles d'accessibilité RGAA */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+        
+        input[type="radio"]:focus {
+            outline: 2px solid #3498db;
+            outline-offset: 2px;
+        }
+        
+        .btn:focus {
+            outline: 2px solid #3498db;
+            outline-offset: 2px;
+        }
+        
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid transparent;
+            border-radius: 4px;
+        }
+        
+        .alert-success {
+            color: #155724;
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+        }
+        
+        .alert-warning {
+            color: #856404;
+            background-color: #fff3cd;
+            border-color: #ffeaa7;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>Grille d'auto-évaluation CAA</h1>
+            <p>Communication Améliorée et Alternative - Outil d'évaluation pour les équipes</p>
+        </header>
+        
+        <main class="content">
+            <div class="introduction">
+                <h2>Introduction</h2>
+                <div class="quote">
+                    Selon <strong>ISAAC (International Society for Augmentative and Alternative Communication)</strong> : « La CAA comprend tous les moyens de communication (autres que la parole orale) utilisés pour exprimer des pensées, des besoins, des désirs et des idées. Elle inclut des gestes, le langage des signes, des symboles, des tableaux de communication et des technologies de communication assistée. »
+                </div>
+                <p>La Communication Alternative et Améliorée (CAA) est un levier essentiel pour l'inclusion, l'autodétermination et la participation des personnes accompagnées et/ou leur entourage si nécessaire. Elle permet d'exprimer des besoins, des choix, des préférences et de vivre des relations sociales malgré des limitations dans le langage oral en expression comme en compréhension.</p>
+                <p><strong>Cette grille d'auto-évaluation a pour objectif de :</strong></p>
+                <p>• Permettre aux équipes d'évaluer la prise en compte de la CAA dans leur pratique<br>
+                • Identifier collectivement les points forts et les axes d'amélioration<br>
+                • Nourrir une démarche d'amélioration continue</p>
+                <p>Elle peut être utilisée en réunion d'équipe, en binôme, ou par un référent, et être reprise dans la durée pour suivre les évolutions.</p>
+            </div>
+            
+            <div class="progress-bar" role="progressbar" aria-label="Progression de l'évaluation">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            
+            <div class="scale-legend">
+                <h3>Échelle d'auto-évaluation</h3>
+                <div class="scale-item">
+                    <div class="scale-number" style="background: #dc3545;">1</div>
+                    <div class="scale-description"><strong>Pas du tout en place</strong></div>
+                </div>
+                <div class="scale-item">
+                    <div class="scale-number" style="background: #fd7e14;">2</div>
+                    <div class="scale-description"><strong>En cours de mise en œuvre</strong></div>
+                </div>
+                <div class="scale-item">
+                    <div class="scale-number" style="background: #ffc107; color: #212529;">3</div>
+                    <div class="scale-description"><strong>Mis en œuvre mais à consolider</strong></div>
+                </div>
+                <div class="scale-item">
+                    <div class="scale-number" style="background: #28a745;">4</div>
+                    <div class="scale-description"><strong>Complètement intégré dans les pratiques</strong></div>
+                </div>
+            </div>
+            
+            <form id="evaluationForm">
+                <!-- Dimension A: Culture et pilotage de la CAA -->
+                <div class="dimension">
+                    <div class="dimension-header">
+                        <h2 class="dimension-title">A. Culture et pilotage de la CAA</h2>
+                    </div>
+                    <div class="dimension-content">
+                        <div class="question">
+                            <div class="question-number">A.1</div>
+                            <div class="question-text">La CAA est inscrite dans les documents institutionnels (projet d'établissement, livret, procédures...)</div>
+                            <div class="radio-group" role="radiogroup" aria-labelledby="qA1-label">
+                                <span id="qA1-label" class="sr-only">Question A.1</span>
+                                <div class="radio-option">
+                                    <input type="radio" id="qA1-1" name="qA1" value="1">
+                                    <label for="qA1-1">1 - Pas du tout en place</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="qA1-2" name="qA1" value="2">
+                                    <label for="qA1-2">2 - En cours de mise en œuvre</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="qA1-3" name="qA1" value="3">
+                                    <label for="qA1-3">3 - Mis en œuvre mais à consolider</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="qA1-4" name="qA1" value="4">
+                                    <label for="qA1-4">4 - Complètement intégré</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="question">
+                            <div class="question-number">A.2</div>
+                            <div class="question-text">Des référents CAA sont identifiés et soutenus</div>
+                            <div class="radio-group" role="radiogroup" aria-labelledby="qA2-label">
+                                <span id="qA2-label" class="sr-only">Question A.2</span>
+                                <div class="radio-option">
+                                    <input type="radio" id="qA2-1" name="qA2" value="1">
+                                    <label for="qA2-1">1 - Pas du tout en place</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="qA2-2" name="qA2" value="2">
+                                    <label for="qA2-2">2 - En cours de mise en œuvre</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="qA2-3" name="qA2" value="3">
+                                    <label for="qA2-3">3 - Mis en œuvre mais à consolider</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="qA2-4" name="qA2" value="4">
+                                    <label for="qA2-4">4 - Complètement intégré</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="question">
+                            <div class="question-number">A.3</div>
+                            <div class="question-text">La direction soutient et pilote la démarche CAA (temps, communication, priorisation)</div>
+                            <div class="radio-group" role="radiogroup" aria-labelledby="qA3-label">
+                                <span id="qA3-label" class="sr-only">Question A.3</span>
+                                <div class="radio-option">
+                                    <input type="radio" id="qA3-1" name="qA3" value="1">
+                                    <label for="qA3-1">1 - Pas du tout en place</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="qA3-2" name="qA3" value="2">
+                                    <label for="qA3-2">2 - En cours de mise en œuvre</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="qA3-3" name="qA3" value="3">
+                                    <label for="qA3-3">3 - Mis en œuvre mais à consolider</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="qA3-4" name="qA3" value="4">
+                                    <label for="qA3-4">4 - Complètement intégré</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="question">
+                            <div class="question-number">A.4</div>
+                            <div class="question-text">Plusieurs types de CAA sont connus et proposés au sein de la structure</div>
+                            <div class="radio-group" role="radiogroup" aria-labelledby="qA4-label">
+                                <span id="qA4-label" class="sr-only">Question A.4</span>
+                                <div class="radio-option">
+                                    <input type="radio" id="qA4-1" name="qA4" value="1">
+                                    <label for="qA4-1">1 - Pas du tout en place</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="qA4-2" name="qA4" value="2">
+                                    <label for="qA4-2">2 - En cours de mise en œuvre</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="qA4-3" name="qA4" value="3">
+                                    <label for="qA4-3">3 - Mis en œuvre mais à consolider</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="qA4-4" name="qA4" value="4">
+                                    <label for="qA4-4">4 - Complètement intégré</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Dimension B: Formation et professionnalisation -->
+                <div class="dimension">
+                    <div class="dimension-header">
+                        <h2 class="dimension-title">B. Formation et professionnalisation</h2>
+                    </div>
+                    <div class="dimension-content">
+                        <div class="question">
+                            <div class="question-number">B.1</div>
+                            <div class="question-text">Une sensibilisation à la CAA est prévue pour les nouveaux arrivants</div>
+                            <div class="radio-group" role="radiogroup" aria-labelledby="qB1-label">
+                                <span id="qB1-label" class="sr-only">Question B.1</span>
+                                <div class="radio-option">
+                                    <input type="radio" id="qB1-1" name="qB1" value="1">
+                                    <label for="qB1-1">1 - Pas du tout en place</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="qB1-2" name="qB1" value="2">
+                                    <label for="qB1-2">2 - En cours de mise en œuvre</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="qB1-3" name="qB1" value="3">
+                                    <label for="qB1-3">3 - Mis en œuvre mais à consolider</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="qB1-4" name="qB1" value="4">
+                                    <label for="qB1-4">4 - Complètement intégré</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="question">
+                            <div class="question-number">B.2</div>
+                            <div class="question-text">Toute l'équipe peut accéder à des formations continues en CAA</div>
+                            <div class="radio-group" role="radiogroup" aria-labelledby="qB2-label">
+                                <span id="qB2-label" class="sr-only">Question B.2</span>
+                                <div class="radio-option">
+                                    <input type="radio" id="qB2-1" name="qB2" value="1">
+                                    <label for="qB2-1">1 - Pas du tout en place</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="qB2-2" name="qB2" value="2">
+                                    <label for="qB2-2">2 - En cours de mise en œuvre</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="qB2-3" name="qB2" value="3">
+                                    <label for="qB2-3">3 - Mis en œuvre mais à consolider</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="qB2-4" name="qB2" value="4">
+                                    <label for="qB2-4">4 - Complètement intégré</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="question">
+                            <div class="question-number">B.3</div>
+                            <div class="question-text">Les référents CAA ont accès à des formations spécifiques</div>
+                            <div class="radio-group" role="radiogroup" aria-labelledby="qB3-label">
+                                <span id="qB3-label" class="sr-only">Question B.3</span>
+                                <div class="radio-option">
+                                    <input type="radio" id="qB3-1" name="qB3" value="1">
+                                    <label for="qB3-1">1 - Pas du tout en place</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="qB3-2" name="qB3" value="2">
+                                    <label for="qB3-2">2 - En cours de mise en œuvre</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="qB3-3" name="qB3" value="3">
+                                    <label for="qB3-3">3 - Mis en œuvre mais à consolider</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="qB3-4" name="qB3" value="4">
+                                    <label for="qB3-4">4 - Complètement intégré</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="question">
+                            <div class="question-number">B.4</div>
+                            <div class="question-text">Des temps collectifs (réunions, CoPil, échanges de pratiques) abordent la CAA</div>
+                            <div class="radio-group" role="radiogroup" aria-labelledby="qB4-label">
+                                <span id="qB4-label" class="sr-only">Question B.4</span>
+                                <div class="radio-option">
+                                    <input type="radio" id="qB4-1" name="qB4" value="1">
+                                    <label for="qB4-1">1 - Pas du tout en place</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="qB4-2" name="qB4" value="2">
+                                    <label for="qB4-2">2 - En cours de mise en œuvre</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="qB4-3" name="qB4" value="3">
+                                    <label for="qB4-3">3 - Mis en œuvre mais à consolider</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="qB4-4" name="qB4" value="4">
+                                    <label for="qB4-4">4 - Complètement intégré</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Dimension C: Ressources et outils -->
+                <div class="dimension">
+                    <div class="dimension-header">
+                        <h2 class="dimension-title">C. Ressources et outils</h2>
+                    </div>
+                    <div class="dimension-content">
+                        <div class="question">
+                            <div class="question-number">C.1</div>
+                            <div class="question-text">Les outils CAA sont disponibles, visibles et mobilisés dans le quotidien</div>
+                            <div class="radio-group" role="radiogroup" aria-labelledby="qC1-label">
+                                <span id="qC1-label" class="sr-only">Question C.1</span>
+                                <div class="radio-option">
+                                    <input type="radio" id="qC1-1" name="qC1" value="1">
+                                    <label for="qC1-1">1 - Pas du tout en place</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="qC1-2" name="qC1" value="2">
+                                    <label for="qC1-2">2 - En cours de mise en œuvre</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="qC1-3" name="qC1" value="3">
+                                    <label for="qC1-3">3 - Mis en œuvre mais à consolider</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="qC1-4" name="qC1" value="4">
+                                    <label for="qC1-4">4 - Complètement intégré</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="question">
+                            <div class="question-number">C.2</div>
+                            <div class="question-text">Les professionnels utilisent une diversité d'outils de CAA (pictos, objets, applis, etc.)</div>
+                            <div class="radio-group" role="radiogroup" aria-labelledby="qC2-label">
+                                <span id="qC2-label" class="sr-only">Question C.2</span>
+                                <div class="radio-option">
+                                    <input type="radio" id="qC2-1" name="qC2" value="1">
+                                    <label for="qC2-1">1 - Pas du tout en place</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="qC2-2" name="qC2" value="2">
+                                    <label for="qC2-2">2 - En cours de mise en œuvre</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="qC2-3" name="qC2" value="3">
+                                    <label for="qC2-3">3 - Mis en œuvre mais à consolider</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="qC2-4" name="qC2" value="4">
+                                    <label for="qC2-4">4 - Complètement intégré</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="question">
+                            <div class="question-number">C.3</div>
+                            <div class="question-text">Des professionnels sont en capacité de recommander, adapter et mettre en œuvre des outils CAA</div>
+                            <div class="radio-group" role="radiogroup" aria-labelledby="qC3-label">
+                                <span id="qC3-label" class="sr-only">Question C.3</span>
+                                <div class="radio-option">
+                                    <input type="radio" id="qC3-1" name="qC3" value="1">
+                                    <label for="qC3-1">1 - Pas du tout en place</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="qC3-2" name="qC3" value="2">
+                                    <label for="qC3-2">2 - En cours de mise en œuvre</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="qC3-3" name="qC3" value="3">
+                                    <label for="qC3-3">3 - Mis en œuvre mais à consolider</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="qC3-4" name="qC3" value="4">
+                                    <label for="qC3-4">4 - Complètement intégré</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="question">
+                            <div class="question-number">C.4</div>
+                            <div class="question-text">Des temps sont spécifiquement dédiés à la mise en œuvre et au suivi de la CAA</div>
+                            <div class="radio-group" role="radiogroup" aria-labelledby="qC4-label">
+                                <span id="qC4-label" class="sr-only">Question C.4</span>
+                                <div class="radio-option">
+                                    <input type="radio" id="qC4-1" name="qC4" value="1">
+                                    <label for="qC4-1">1 - Pas du tout en place</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="qC4-2" name="qC4" value="2">
+                                    <label for="qC4-2">2 - En cours de mise en œuvre</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="qC4-3" name="qC4" value="3">
+                                    <label for="qC4-3">3 - Mis en œuvre mais à consolider</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="qC4-4" name="qC4" value="4">
+                                    <label for="qC4-4">4 - Complètement intégré</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Dimension D: Évaluation des besoins en communication -->
+                <div class="dimension">
+                    <div class="dimension-header">
+                        <h2 class="dimension-title">D. Évaluation des besoins en communication</h2>
+                    </div>
+                    <div class="dimension-content">
+                        <div class="question">
+                            <div class="question-number">D.1</div>
+                            <div class="question-text">Une évaluation des besoins en communication est réalisée dès l'admission</div>
+                            <div class="radio-group" role="radiogroup" aria-labelledby="qD1-label">
+                                <span id="qD1-label" class="sr-only">Question D.1</span>
+                                <div class="radio-option">
+                                    <input type="radio" id="qD1-1" name="qD1" value="1">
+                                    <label for="qD1-1">1 - Pas du tout en place</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="qD1-2" name="qD1" value="2">
+                                    <label for="qD1-2">2 - En cours de mise en œuvre</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="qD1-3" name="qD1" value="3">
+                                    <label for="qD1-3">3 - Mis en œuvre mais à consolider</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="qD1-4" name="qD1" value="4">
+                                    <label for="qD1-4">4 - Complètement intégré</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="question">
+                            <div class="question-number">D.2</div>
+                            <div class="question-text">Elle est régulièrement réactualisée en lien avec la personne, les proches et les professionnels</div>
+                            <div class="radio-group" role="radiogroup" aria-labelledby="qD2-label">
+                                <span id="qD2-label" class="sr-only">Question D.2</span>
+                                <div class="radio-option">
+                                    <input type="radio" id="qD2-1" name="qD2" value="1">
+                                    <label for="qD2-1">1 - Pas du tout en place</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="qD2-2" name="qD2" value="2">
+                                    <label for="qD2-2">2 - En cours de mise en œuvre</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="qD2-3" name="qD2" value="3">
+                                    <label for="qD2-3">3 - Mis en œuvre mais à consolider</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="qD2-4" name="qD2" value="4">
+                                    <label for="qD2-4">4 - Complètement intégré</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="question">
+                            <div class="question-number">D.3</div>
+                            <div class="question-text">En cas de changement de professionnel ou de structure, les outils de CAA sont transmis pour garantir la continuité</div>
+                            <div class="radio-group" role="radiogroup" aria-labelledby="qD3-label">
+                                <span id="qD3-label" class="sr-only">Question D.3</span>
+                                <div class="radio-option">
+                                    <input type="radio" id="qD3-1" name="qD3" value="1">
+                                    <label for="qD3-1">1 - Pas du tout en place</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="qD3-2" name="qD3" value="2">
+                                    <label for="qD3-2">2 - En cours de mise en œuvre</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="qD3-3" name="qD3" value="3">
+                                    <label for="qD3-3">3 - Mis en œuvre mais à consolider</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="qD3-4" name="qD3" value="4">
+                                    <label for="qD3-4">4 - Complètement intégré</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Dimension E: Projet personnalisé -->
+                <div class="dimension">
+                    <div class="dimension-header">
+                        <h2 class="dimension-title">E. Projet personnalisé</h2>
+                    </div>
+                    <div class="dimension-content">
+                        <div class="question">
+                            <div class="question-number">E.1</div>
+                            <div class="question-text">Si nécessaire, la CAA est inscrite dans le projet personnalisé de la personne</div>
+                            <div class="radio-group" role="radiogroup" aria-labelledby="qE1-label">
+                                <span id="qE1-label" class="sr-only">Question E.1</span>
+                                <div class="radio-option">
+                                    <input type="radio" id="qE1-1" name="qE1" value="1">
+                                    <label for="qE1-1">1 - Pas du tout en place</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="qE1-2" name="qE1" value="2">
+                                    <label for="qE1-2">2 - En cours de mise en œuvre</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="qE1-3" name="qE1" value="3">
+                                    <label for="qE1-3">3 - Mis en œuvre mais à consolider</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="qE1-4" name="qE1" value="4">
+                                    <label for="qE1-4">4 - Complètement intégré</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="question">
+                            <div class="question-number">E.2</div>
+                            <div class="question-text">Des objectifs concrets et mesurables en lien avec la communication sont suivis</div>
+                            <div class="radio-group" role="radiogroup" aria-labelledby="qE2-label">
+                                <span id="qE2-label" class="sr-only">Question E.2</span>
+                                <div class="radio-option">
+                                    <input type="radio" id="qE2-1" name="qE2" value="1">
+                                    <label for="qE2-1">1 - Pas du tout en place</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="qE2-2" name="qE2" value="2">
+                                    <label for="qE2-2">2 - En cours de mise en œuvre</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="qE2-3" name="qE2" value="3">
+                                    <label for="qE2-3">3 - Mis en œuvre mais à consolider</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="qE2-4" name="qE2" value="4">
+                                    <label for="qE2-4">4 - Complètement intégré</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="question">
+                            <div class="question-number">E.3</div>
+                            <div class="question-text">Les outils sont réajustés régulièrement selon l'évolution de la personne</div>
+                            <div class="radio-group" role="radiogroup" aria-labelledby="qE3-label">
+                                <span id="qE3-label" class="sr-only">Question E.3</span>
+                                <div class="radio-option">
+                                    <input type="radio" id="qE3-1" name="qE3" value="1">
+                                    <label for="qE3-1">1 - Pas du tout en place</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="qE3-2" name="qE3" value="2">
+                                    <label for="qE3-2">2 - En cours de mise en œuvre</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="qE3-3" name="qE3" value="3">
+                                    <label for="qE3-3">3 - Mis en œuvre mais à consolider</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="qE3-4" name="qE3" value="4">
+                                    <label for="qE3-4">4 - Complètement intégré</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Dimension F: Implication des personnes et des proches -->
+                <div class="dimension">
+                    <div class="dimension-header">
+                        <h2 class="dimension-title">F. Implication des personnes et des proches</h2>
+                    </div>
+                    <div class="dimension-content">
+                        <div class="question">
+                            <div class="question-number">F.1</div>
+                            <div class="question-text">Les personnes accompagnées participent au choix et à l'utilisation des outils CAA</div>
+                            <div class="radio-group" role="radiogroup" aria-labelledby="qF1-label">
+                                <span id="qF1-label" class="sr-only">Question F.1</span>
+                                <div class="radio-option">
+                                    <input type="radio" id="qF1-1" name="qF1" value="1">
+                                    <label for="qF1-1">1 - Pas du tout en place</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="qF1-2" name="qF1" value="2">
+                                    <label for="qF1-2">2 - En cours de mise en œuvre</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="qF1-3" name="qF1" value="3">
+                                    <label for="qF1-3">3 - Mis en œuvre mais à consolider</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="qF1-4" name="qF1" value="4">
+                                    <label for="qF1-4">4 - Complètement intégré</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="question">
+                            <div class="question-number">F.2</div>
+                            <div class="question-text">Les personnes accompagnées se voient proposer des possibilités véritables de communication qui leur permettent de prendre des décisions</div>
+                            <div class="radio-group" role="radiogroup" aria-labelledby="qF2-label">
+                                <span id="qF2-label" class="sr-only">Question F.2</span>
+                                <div class="radio-option">
+                                    <input type="radio" id="qF2-1" name="qF2" value="1">
+                                    <label for="qF2-1">1 - Pas du tout en place</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="qF2-2" name="qF2" value="2">
+                                    <label for="qF2-2">2 - En cours de mise en œuvre</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="qF2-3" name="qF2" value="3">
+                                    <label for="qF2-3">3 - Mis en œuvre mais à consolider</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="qF2-4" name="qF2" value="4">
+                                    <label for="qF2-4">4 - Complètement intégré</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="question">
+                            <div class="question-number">F.3</div>
+                            <div class="question-text">Les familles et proches sont impliqués dans les pratiques de communication</div>
+                            <div class="radio-group" role="radiogroup" aria-labelledby="qF3-label">
+                                <span id="qF3-label" class="sr-only">Question F.3</span>
+                                <div class="radio-option">
+                                    <input type="radio" id="qF3-1" name="qF3" value="1">
+                                    <label for="qF3-1">1 - Pas du tout en place</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="qF3-2" name="qF3" value="2">
+                                    <label for="qF3-2">2 - En cours de mise en œuvre</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="qF3-3" name="qF3" value="3">
+                                    <label for="qF3-3">3 - Mis en œuvre mais à consolider</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="qF3-4" name="qF3" value="4">
+                                    <label for="qF3-4">4 - Complètement intégré</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="question">
+                            <div class="question-number">F.4</div>
+                            <div class="question-text">Les familles et proches sont formés dans les pratiques de communication</div>
+                            <div class="radio-group" role="radiogroup" aria-labelledby="qF4-label">
+                                <span id="qF4-label" class="sr-only">Question F.4</span>
+                                <div class="radio-option">
+                                    <input type="radio" id="qF4-1" name="qF4" value="1">
+                                    <label for="qF4-1">1 - Pas du tout en place</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="qF4-2" name="qF4" value="2">
+                                    <label for="qF4-2">2 - En cours de mise en œuvre</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="qF4-3" name="qF4" value="3">
+                                    <label for="qF4-3">3 - Mis en œuvre mais à consolider</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="qF4-4" name="qF4" value="4">
+                                    <label for="qF4-4">4 - Complètement intégré</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Dimension G: Vie quotidienne et participation -->
+                <div class="dimension">
+                    <div class="dimension-header">
+                        <h2 class="dimension-title">G. Vie quotidienne et participation</h2>
+                    </div>
+                    <div class="dimension-content">
+                        <div class="question">
+                            <div class="question-number">G.1</div>
+                            <div class="question-text">L'environnement est accessible à la communication (signalétique, supports visuels...)</div>
+                            <div class="radio-group" role="radiogroup" aria-labelledby="qG1-label">
+                                <span id="qG1-label" class="sr-only">Question G.1</span>
+                                <div class="radio-option">
+                                    <input type="radio" id="qG1-1" name="qG1" value="1">
+                                    <label for="qG1-1">1 - Pas du tout en place</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="qG1-2" name="qG1" value="2">
+                                    <label for="qG1-2">2 - En cours de mise en œuvre</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="qG1-3" name="qG1" value="3">
+                                    <label for="qG1-3">3 - Mis en œuvre mais à consolider</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="qG1-4" name="qG1" value="4">
+                                    <label for="qG1-4">4 - Complètement intégré</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="question">
+                            <div class="question-number">G.2</div>
+                            <div class="question-text">La CAA est utilisée pour exprimer des choix, préférences et décisions</div>
+                            <div class="radio-group" role="radiogroup" aria-labelledby="qG2-label">
+                                <span id="qG2-label" class="sr-only">Question G.2</span>
+                                <div class="radio-option">
+                                    <input type="radio" id="qG2-1" name="qG2" value="1">
+                                    <label for="qG2-1">1 - Pas du tout en place</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="qG2-2" name="qG2" value="2">
+                                    <label for="qG2-2">2 - En cours de mise en œuvre</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="qG2-3" name="qG2" value="3">
+                                    <label for="qG2-3">3 - Mis en œuvre mais à consolider</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="qG2-4" name="qG2" value="4">
+                                    <label for="qG2-4">4 - Complètement intégré</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="question">
+                            <div class="question-number">G.3</div>
+                            <div class="question-text">Le temps nécessaire est respecté pour que la personne puisse utiliser ses outils de CAA</div>
+                            <div class="radio-group" role="radiogroup" aria-labelledby="qG3-label">
+                                <span id="qG3-label" class="sr-only">Question G.3</span>
+                                <div class="radio-option">
+                                    <input type="radio" id="qG3-1" name="qG3" value="1">
+                                    <label for="qG3-1">1 - Pas du tout en place</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="qG3-2" name="qG3" value="2">
+                                    <label for="qG3-2">2 - En cours de mise en œuvre</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="qG3-3" name="qG3" value="3">
+                                    <label for="qG3-3">3 - Mis en œuvre mais à consolider</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="qG3-4" name="qG3" value="4">
+                                    <label for="qG3-4">4 - Complètement intégré</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            
+            <!-- Section Résultats -->
+            <div class="results-section" id="resultsSection">
+                <h2 style="color: #2c3e50; margin-bottom: 30px;">Résultats de l'évaluation</h2>
+                
+                <div class="results-summary" id="resultsSummary">
+                    <!-- Les cartes de résultats seront générées par JavaScript -->
+                </div>
+                
+                <div class="chart-container">
+                    <canvas id="radarChart"></canvas>
+                </div>
+                
+                <div class="metadata-section">
+                    <h3 style="margin-bottom: 20px; color: #2c3e50;">Informations complémentaires</h3>
+                    <div class="form-group">
+                        <label for="institutionName">Nom de l'institution :</label>
+                        <input type="text" id="institutionName" placeholder="Nom de votre établissement ou service">
+                    </div>
+                    <div class="form-group">
+                        <label for="evaluatorName">Évalué par :</label>
+                        <input type="text" id="evaluatorName" placeholder="Nom du ou des évaluateurs">
+                    </div>
+                    <div class="form-group">
+                        <label for="evaluationDate">Date de l'évaluation :</label>
+                        <input type="date" id="evaluationDate">
+                    </div>
+                    <div class="form-group">
+                        <label for="remarks">Remarques et pistes d'amélioration :</label>
+                        <textarea id="remarks" placeholder="Observations, actions prévues, axes d'amélioration..."></textarea>
+                    </div>
+                </div>
+                
+                <div class="export-section">
+                    <h3 style="margin-bottom: 20px; color: #2c3e50;">Exporter les résultats</h3>
+                    <div class="button-group">
+                        <button class="btn btn-primary" onclick="downloadCSV()">
+                            📊 Télécharger CSV détaillé
+                        </button>
+                        <button class="btn btn-success" onclick="sendByEmail()">
+                            ✉️ Envoyer par email (avec JSON)
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Variables globales
+        let chart = null;
+        const dimensions = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
+        const dimensionNames = {
+            'A': 'Culture et pilotage',
+            'B': 'Formation et professionnalisation', 
+            'C': 'Ressources et outils',
+            'D': 'Évaluation des besoins',
+            'E': 'Projet personnalisé',
+            'F': 'Implication des personnes',
+            'G': 'Vie quotidienne'
+        };
+        const questionCounts = {'A': 4, 'B': 4, 'C': 4, 'D': 3, 'E': 3, 'F': 4, 'G': 3};
+        
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            setupEventListeners();
+            setTodayDate();
+        });
+        
+        // Configuration des écouteurs d'événements
+        function setupEventListeners() {
+            const radioButtons = document.querySelectorAll('input[type="radio"]');
+            radioButtons.forEach(radio => {
+                radio.addEventListener('change', handleRadioChange);
+            });
+        }
+        
+        // Gestion du changement de sélection radio
+        function handleRadioChange(event) {
+            // Mise à jour visuelle de la sélection
+            updateRadioVisual(event.target);
+            
+            // Mise à jour de la barre de progression
+            updateProgress();
+            
+            // Vérification si toutes les questions sont répondues
+            if (areAllQuestionsAnswered()) {
+                showResults();
+            }
+        }
+        
+        // Mise à jour visuelle des boutons radio
+        function updateRadioVisual(selectedRadio) {
+            const radioGroup = selectedRadio.closest('.radio-group');
+            const allOptions = radioGroup.querySelectorAll('.radio-option');
+            
+            allOptions.forEach(option => {
+                option.classList.remove('selected', 'level-1', 'level-2', 'level-3', 'level-4');
+            });
+            
+            const selectedOption = selectedRadio.closest('.radio-option');
+            const level = selectedRadio.value;
+            selectedOption.classList.add('selected', `level-${level}`);
+        }
+        
+        // Mise à jour de la barre de progression
+        function updateProgress() {
+            const totalQuestions = getTotalQuestions();
+            const answeredQuestions = getAnsweredQuestions();
+            const percentage = (answeredQuestions / totalQuestions) * 100;
+            
+            document.getElementById('progressFill').style.width = percentage + '%';
+        }
+        
+        // Obtenir le nombre total de questions
+        function getTotalQuestions() {
+            return Object.values(questionCounts).reduce((sum, count) => sum + count, 0);
+        }
+        
+        // Obtenir le nombre de questions répondues
+        function getAnsweredQuestions() {
+            let answered = 0;
+            dimensions.forEach(dim => {
+                for (let i = 1; i <= questionCounts[dim]; i++) {
+                    const questionName = `q${dim}${i}`;
+                    if (document.querySelector(`input[name="${questionName}"]:checked`)) {
+                        answered++;
+                    }
+                }
+            });
+            return answered;
+        }
+        
+        // Vérifier si toutes les questions sont répondues
+        function areAllQuestionsAnswered() {
+            return getAnsweredQuestions() === getTotalQuestions();
+        }
+        
+        // Calculer les scores par dimension
+        function calculateScores() {
+            const scores = {};
+            
+            dimensions.forEach(dim => {
+                let total = 0;
+                let count = 0;
+                
+                for (let i = 1; i <= questionCounts[dim]; i++) {
+                    const questionName = `q${dim}${i}`;
+                    const checkedRadio = document.querySelector(`input[name="${questionName}"]:checked`);
+                    if (checkedRadio) {
+                        total += parseInt(checkedRadio.value);
+                        count++;
+                    }
+                }
+                
+                scores[dim] = count > 0 ? (total / count) : 0;
+            });
+            
+            return scores;
+        }
+        
+        // Afficher les résultats
+        function showResults() {
+            const scores = calculateScores();
+            const resultsSection = document.getElementById('resultsSection');
+            
+            // Afficher la section résultats
+            resultsSection.classList.add('visible');
+            
+            // Générer les cartes de résumé
+            generateSummaryCards(scores);
+            
+            // Créer le graphique radar
+            createRadarChart(scores);
+            
+            // Faire défiler vers les résultats
+            resultsSection.scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // Obtenir la couleur selon le score
+        function getScoreColor(score) {
+            if (score < 1.5) return '#dc3545'; // Rouge
+            else if (score < 2.5) return '#fd7e14'; // Orange
+            else if (score < 3.5) return '#ffc107'; // Jaune
+            else return '#28a745'; // Vert
+        }
+        
+        // Obtenir l'interprétation du score
+        function getScoreInterpretation(score) {
+            if (score < 1.5) return 'Nécessite un développement important';
+            else if (score < 2.5) return 'En cours de développement';
+            else if (score < 3.5) return 'Bien développé, à consolider';
+            else return 'Pleinement intégré';
+        }
+        
+        // Obtenir le libellé de la réponse
+        function getAnswerLabel(value) {
+            const labels = {
+                1: 'Pas du tout en place',
+                2: 'En cours de mise en œuvre',
+                3: 'Mis en œuvre mais à consolider',
+                4: 'Complètement intégré dans les pratiques'
+            };
+            return labels[value] || '';
+        }
+        
+        // Générer les cartes de résumé
+        function generateSummaryCards(scores) {
+            const container = document.getElementById('resultsSummary');
+            container.innerHTML = '';
+            
+            dimensions.forEach(dim => {
+                const card = document.createElement('div');
+                card.className = 'summary-card';
+                
+                const score = scores[dim];
+                const percentage = ((score - 1) / 3 * 100).toFixed(1);
+                const color = getScoreColor(score);
+                
+                let interpretation = '';
+                if (score < 1.5) interpretation = 'Nécessite un développement important';
+                else if (score < 2.5) interpretation = 'En cours de développement';
+                else if (score < 3.5) interpretation = 'Bien développé, à consolider';
+                else interpretation = 'Pleinement intégré';
+                
+                card.style.borderLeftColor = color;
+                card.innerHTML = `
+                    <h3>${dim}. ${dimensionNames[dim]}</h3>
+                    <div class="score" style="color: ${color};">${score.toFixed(1)}/4</div>
+                    <div class="score-detail">${percentage}% - ${interpretation}</div>
+                `;
+                
+                container.appendChild(card);
+            });
+            
+            // Ajouter une carte pour le score global
+            const globalScore = Object.values(scores).reduce((sum, score) => sum + score, 0) / dimensions.length;
+            const globalColor = getScoreColor(globalScore);
+            const globalCard = document.createElement('div');
+            globalCard.className = 'summary-card';
+            globalCard.style.borderLeftColor = globalColor;
+            
+            globalCard.innerHTML = `
+                <h3>Score global</h3>
+                <div class="score" style="color: ${globalColor};">${globalScore.toFixed(1)}/4</div>
+                <div class="score-detail">${((globalScore - 1) / 3 * 100).toFixed(1)}% - Évaluation générale</div>
+            `;
+            
+            container.appendChild(globalCard);
+        }
+        
+        // Créer le graphique radar
+        function createRadarChart(scores) {
+            const ctx = document.getElementById('radarChart').getContext('2d');
+            
+            // Détruire le graphique existant s'il y en a un
+            if (chart) {
+                chart.destroy();
+            }
+            
+            const data = {
+                labels: dimensions.map(dim => `${dim}. ${dimensionNames[dim]}`),
+                datasets: [{
+                    label: 'Score CAA',
+                    data: dimensions.map(dim => scores[dim]),
+                    borderColor: '#3498db',
+                    backgroundColor: 'rgba(52, 152, 219, 0.2)',
+                    borderWidth: 2,
+                    pointBackgroundColor: '#3498db',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 6
+                }]
+            };
+            
+            const config = {
+                type: 'radar',
+                data: data,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            min: 0,
+                            max: 4,
+                            ticks: {
+                                stepSize: 1,
+                                callback: function(value) {
+                                    const labels = ['', 'Pas du tout\nen place', 'En cours de\nmise en œuvre', 'Mis en œuvre\nmais à consolider', 'Complètement\nintégré'];
+                                    return labels[value] || '';
+                                }
+                            },
+                            grid: {
+                                color: '#dee2e6'
+                            },
+                            angleLines: {
+                                color: '#dee2e6'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const score = context.parsed.r;
+                                    const percentage = ((score - 1) / 3 * 100).toFixed(1);
+                                    return `Score: ${score.toFixed(1)}/4 (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+            
+            chart = new Chart(ctx, config);
+        }
+        
+        // Obtenir toutes les réponses détaillées
+        function getAllAnswers() {
+            const answers = {};
+            const questionTexts = {
+                'qA1': 'La CAA est inscrite dans les documents institutionnels',
+                'qA2': 'Des référents CAA sont identifiés et soutenus',
+                'qA3': 'La direction soutient et pilote la démarche CAA',
+                'qA4': 'Plusieurs types de CAA sont connus et proposés',
+                'qB1': 'Une sensibilisation à la CAA est prévue pour les nouveaux arrivants',
+                'qB2': 'Toute l\'équipe peut accéder à des formations continues en CAA',
+                'qB3': 'Les référents CAA ont accès à des formations spécifiques',
+                'qB4': 'Des temps collectifs abordent la CAA',
+                'qC1': 'Les outils CAA sont disponibles, visibles et mobilisés',
+                'qC2': 'Les professionnels utilisent une diversité d\'outils de CAA',
+                'qC3': 'Des professionnels sont en capacité de recommander des outils CAA',
+                'qC4': 'Des temps sont dédiés à la mise en œuvre et au suivi de la CAA',
+                'qD1': 'Une évaluation des besoins en communication est réalisée dès l\'admission',
+                'qD2': 'Elle est régulièrement réactualisée avec tous les acteurs',
+                'qD3': 'Les outils de CAA sont transmis pour garantir la continuité',
+                'qE1': 'La CAA est inscrite dans le projet personnalisé si nécessaire',
+                'qE2': 'Des objectifs concrets en communication sont suivis',
+                'qE3': 'Les outils sont réajustés selon l\'évolution de la personne',
+                'qF1': 'Les personnes participent au choix des outils CAA',
+                'qF2': 'Des possibilités véritables de communication sont proposées',
+                'qF3': 'Les familles et proches sont impliqués dans les pratiques',
+                'qF4': 'Les familles et proches sont formés aux pratiques de communication',
+                'qG1': 'L\'environnement est accessible à la communication',
+                'qG2': 'La CAA est utilisée pour exprimer choix et décisions',
+                'qG3': 'Le temps nécessaire est respecté pour utiliser les outils CAA'
+            };
+            
+            dimensions.forEach(dim => {
+                for (let i = 1; i <= questionCounts[dim]; i++) {
+                    const questionName = `q${dim}${i}`;
+                    const checkedRadio = document.querySelector(`input[name="${questionName}"]:checked`);
+                    if (checkedRadio) {
+                        answers[questionName] = {
+                            question: questionTexts[questionName],
+                            dimension: `${dim}. ${dimensionNames[dim]}`,
+                            reponse: parseInt(checkedRadio.value),
+                            libelle_reponse: getAnswerLabel(parseInt(checkedRadio.value))
+                        };
+                    }
+                }
+            });
+            
+            return answers;
+        }
+        function setTodayDate() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('evaluationDate').value = today;
+        }
+        
+        // Télécharger en PDF
+        function downloadPDF() {
+            const scores = calculateScores();
+            const institutionName = document.getElementById('institutionName').value || 'Institution';
+            const evaluatorName = document.getElementById('evaluatorName').value || 'Non renseigné';
+            const evaluationDate = document.getElementById('evaluationDate').value || new Date().toISOString().split('T')[0];
+            const remarks = document.getElementById('remarks').value || 'Aucune remarque';
+            
+            // Création du contenu PDF (simulation)
+            let pdfContent = `GRILLE D'AUTO-ÉVALUATION CAA
+Communication Améliorée et Alternative
+
+Institution: ${institutionName}
+Évalué par: ${evaluatorName}
+Date: ${evaluationDate}
+
+RÉSULTATS PAR DIMENSION:
+`;
+            
+            dimensions.forEach(dim => {
+                const score = scores[dim];
+                const percentage = ((score - 1) / 3 * 100).toFixed(1);
+                pdfContent += `${dim}. ${dimensionNames[dim]}: ${score.toFixed(1)}/4 (${percentage}%)\n`;
+            });
+            
+            const globalScore = Object.values(scores).reduce((sum, score) => sum + score, 0) / dimensions.length;
+            pdfContent += `\nSCORE GLOBAL: ${globalScore.toFixed(1)}/4 (${((globalScore - 1) / 3 * 100).toFixed(1)}%)\n`;
+            
+            pdfContent += `\nREMARQUES:\n${remarks}`;
+            
+            // Téléchargement du fichier texte (en attendant une vraie génération PDF)
+            const blob = new Blob([pdfContent], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `evaluation_caa_${institutionName.replace(/\s+/g, '_')}_${evaluationDate}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+        
+        // Télécharger en CSV avec toutes les réponses
+        // Télécharger en CSV avec toutes les réponses
+        function downloadCSV() {
+            const scores = calculateScores();
+            const answers = getAllAnswers();
+            const institutionName = document.getElementById('institutionName').value || 'Institution';
+            const evaluatorName = document.getElementById('evaluatorName').value || 'Non renseigné';
+            const evaluationDate = document.getElementById('evaluationDate').value || new Date().toISOString().split('T')[0];
+            const remarks = document.getElementById('remarks').value || '';
+            
+            // En-têtes CSV
+            let csvContent = 'Type,Code_Question,Dimension,Question,Reponse_Numerique,Reponse_Libelle,Score_Dimension,Pourcentage_Dimension\n';
+            
+            // Réponses détaillées
+            Object.keys(answers).forEach(questionCode => {
+                const answer = answers[questionCode];
+                const dimCode = questionCode.charAt(1);
+                const dimScore = scores[dimCode];
+                const dimPercentage = ((dimScore - 1) / 3 * 100).toFixed(1);
+                
+                csvContent += `Reponse,${questionCode},"${answer.dimension}","${answer.question}",${answer.reponse},"${answer.libelle_reponse}",${dimScore.toFixed(1)},${dimPercentage}\n`;
+            });
+            
+            // Scores par dimension
+            dimensions.forEach(dim => {
+                const score = scores[dim];
+                const percentage = ((score - 1) / 3 * 100).toFixed(1);
+                csvContent += `Score_Dimension,${dim},"${dim}. ${dimensionNames[dim]}","Score moyen de la dimension",${score.toFixed(1)},"${getScoreInterpretation(score)}",${score.toFixed(1)},${percentage}\n`;
+            });
+            
+            // Score global
+            const globalScore = Object.values(scores).reduce((sum, score) => sum + score, 0) / dimensions.length;
+            const globalPercentage = ((globalScore - 1) / 3 * 100).toFixed(1);
+            csvContent += `Score_Global,GLOBAL,"Score global","Score moyen général",${globalScore.toFixed(1)},"${getScoreInterpretation(globalScore)}",${globalScore.toFixed(1)},${globalPercentage}\n`;
+            
+            // Métadonnées
+            csvContent += `\nMetadonnees,Institution,"${institutionName}","","","","",""\n`;
+            csvContent += `Metadonnees,Evaluateur,"${evaluatorName}","","","","",""\n`;
+            csvContent += `Metadonnees,Date_Evaluation,"${evaluationDate}","","","","",""\n`;
+            csvContent += `Metadonnees,Remarques,"${remarks}","","","","",""\n`;
+            
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `evaluation_caa_${institutionName.replace(/\s+/g, '_')}_${evaluationDate}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+        
+        // Définir la date d'aujourd'hui
+        function setTodayDate() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('evaluationDate').value = today;
+        }
+        
+        // Envoyer par email avec fichier JSON
+        function sendByEmail() {
+            const scores = calculateScores();
+            const answers = getAllAnswers();
+            const institutionName = document.getElementById('institutionName').value || 'Institution';
+            const evaluatorName = document.getElementById('evaluatorName').value || 'Non renseigné';
+            const evaluationDate = document.getElementById('evaluationDate').value || new Date().toISOString().split('T')[0];
+            const remarks = document.getElementById('remarks').value || '';
+            
+            // Création de l'objet JSON complet
+            const evaluationData = {
+                metadata: {
+                    institution: institutionName,
+                    evaluateur: evaluatorName,
+                    date_evaluation: evaluationDate,
+                    remarques: remarks,
+                    date_export: new Date().toISOString()
+                },
+                reponses_detaillees: answers,
+                scores_par_dimension: {},
+                score_global: {
+                    valeur: 0,
+                    pourcentage: 0,
+                    interpretation: ''
+                }
+            };
+            
+            // Calcul des scores par dimension
+            dimensions.forEach(dim => {
+                const score = scores[dim];
+                evaluationData.scores_par_dimension[dim] = {
+                    nom: dimensionNames[dim],
+                    score: parseFloat(score.toFixed(1)),
+                    pourcentage: parseFloat(((score - 1) / 3 * 100).toFixed(1)),
+                    interpretation: getScoreInterpretation(score),
+                    couleur: getScoreColor(score)
+                };
+            });
+            
+            // Score global
+            const totalScore = Object.values(scores).reduce((sum, score) => sum + score, 0) / dimensions.length;
+            evaluationData.score_global = {
+                valeur: parseFloat(totalScore.toFixed(1)),
+                pourcentage: parseFloat(((totalScore - 1) / 3 * 100).toFixed(1)),
+                interpretation: getScoreInterpretation(totalScore),
+                couleur: getScoreColor(totalScore)
+            };
+            
+            // Création du fichier JSON pour téléchargement
+            const jsonBlob = new Blob([JSON.stringify(evaluationData, null, 2)], { 
+                type: 'application/json' 
+            });
+            const jsonUrl = URL.createObjectURL(jsonBlob);
+            
+            // Création du lien de téléchargement automatique du JSON
+            const downloadLink = document.createElement('a');
+            downloadLink.href = jsonUrl;
+            downloadLink.download = `evaluation_caa_${institutionName.replace(/\s+/g, '_')}_${evaluationDate}.json`;
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+            URL.revokeObjectURL(jsonUrl);
+            
+            // Préparation du contenu de l'email
+            let emailBody = `Bonjour,
+
+Veuillez trouver ci-dessous les résultats de l'évaluation CAA.
+Le fichier JSON détaillé a été téléchargé automatiquement et peut être joint à ce message.
+
+Institution : ${institutionName}
+Évalué par : ${evaluatorName}
+Date : ${evaluationDate}
+
+RÉSULTATS PAR DIMENSION :
+`;
+            
+            dimensions.forEach(dim => {
+                const score = scores[dim];
+                const percentage = ((score - 1) / 3 * 100).toFixed(1);
+                const interpretation = getScoreInterpretation(score);
+                emailBody += `${dim}. ${dimensionNames[dim]} : ${score.toFixed(1)}/4 (${percentage}%) - ${interpretation}\n`;
+            });
+            
+            const finalScore = Object.values(scores).reduce((sum, score) => sum + score, 0) / dimensions.length;
+            emailBody += `\nSCORE GLOBAL : ${finalScore.toFixed(1)}/4 (${((finalScore - 1) / 3 * 100).toFixed(1)}%) - ${getScoreInterpretation(finalScore)}\n`;
+            
+            if (remarks) {
+                emailBody += `\nREMARQUES :\n${remarks}`;
+            }
+            
+            emailBody += `\n\nNote : Le fichier JSON contenant toutes les données détaillées a été téléchargé automatiquement. Vous pouvez l'ajouter en pièce jointe à ce message.`;
+            emailBody += `\n\nCordialement`;
+            
+            // Création du lien mailto
+            const subject = `Résultats évaluation CAA - ${institutionName} - ${evaluationDate}`;
+            const mailtoLink = `mailto:techlab-caa@apf.asso.fr?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(emailBody)}`;
+            
+            // Ouverture du client de messagerie
+            window.location.href = mailtoLink;
+            
+            // Affichage d'un message de confirmation
+            showAlert('Le fichier JSON a été téléchargé et le client de messagerie va s\'ouvrir. Vous pouvez ajouter le fichier JSON en pièce jointe.', 'success');
+        }
+        
+        // Afficher une alerte
+        function showAlert(message, type = 'warning') {
+            const existingAlert = document.querySelector('.alert');
+            if (existingAlert) {
+                existingAlert.remove();
+            }
+            
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.textContent = message;
+            
+            const container = document.querySelector('.content');
+            container.insertBefore(alert, container.firstChild);
+            
+            // Suppression automatique après 5 secondes
+            setTimeout(() => {
+                if (alert.parentNode) {
+                    alert.parentNode.removeChild(alert);
+                }
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
